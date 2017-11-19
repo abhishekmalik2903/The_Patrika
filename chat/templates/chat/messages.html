@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% load template_func %}
+
+<!-- Page that shows notifications. Also has links to private messages to user -->
+
+<script>
+{% block javascript %}
+
+{% endblock %}
+</script>
+
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+
+    <!-- Button to private messages -->
+    {% who_sent_messages private_messages  as messages_from %}
+        <div class="col-sm-10 col-sm-offset-1 no-margin twenty-space">
+        {% for username, messages in messages_from.items %}
+            <form class="fifteen-bottom" method="get" action="{% url 'chat:messages_by_user' %}">
+                <input type="hidden" name="username" value="{{ username }}" >
+                <h3 style=""><input class="bg-success" type="submit" value="{% if messages > 0 %}{{ messages }}{% else %}No new{% endif %} message{% if messages != 1 %}s{% endif %} from {{ username }}"></h3>
+            </form>
+
+        {% endfor %}
+        <h3><a href="{% url 'chat:friends' %}" class="btn bg-success">Start conversation with your friends</a></h3>
+    </div>
+
+    <!-- All Notifications and messages from the ChatBox Staff -->
+    <div class="message-link-seperator">
+            <!-- shows all friend requests -->
+            {% for message in friend_request %}
+                {% include "chat/message_loop.html" %}
+            {% endfor %}
+            <!-- shows all friend accepted messages -->
+            {% for message in friend_accepted %}
+                {% include "chat/message_loop.html" %}
+            {% endfor %}
+            <!-- shows all other messages form staff -->
+            {% for message in user_messages %}
+                {% include "chat/message_loop.html" %}
+
+            {% endfor %}
+        <!--if no messages -->
+        </div>
+
+    {% include "chat/ajax.html" %}
+{% endblock %}

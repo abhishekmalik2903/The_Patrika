@@ -1,0 +1,133 @@
+{% load template_func %}
+
+<!-- comments on a post or comments -->
+
+<script>
+    {% block javascript %}
+        var distance;
+        {% for comment in comments|slice:"1" %}
+            distance = "{{ comment.distance_from_sourse }}";
+        {% endfor %}
+        var loop = $(".loop_num").val();
+        var index = 10 * (parseInt(distance) - 2);
+
+        // sets padding
+        $(".iii").css("padding-left", index + "%");
+
+        // shows all comments
+        $(".more-comments").click(function() {
+            var pk = $(this).siblings(".comments").val();
+            $(".comment-of-" + pk).css("display", "block").css("padding-left", index + "%");
+            $(this).siblings(".less-comments").css("display", "inline");
+            $(this).css("display", "none");
+        });
+
+        // hides all comments besides the last 5
+        $(".less-comments").click(function() {
+            var pk = $(this).siblings(".comments").val();
+            $(".comment-of-" + pk).css("display", "none").css("padding-left", index + "%");
+            $(".last-5").css("display", "block").css("padding-left", index + "%");
+            $(this).siblings(".more-comments").css("display", "inline");
+            $(this).css("display", "none");
+        });
+
+
+
+    {% endblock %}
+</script>
+
+<!-- templatetags that returns the last 5 comments that where posted -->
+{% last_5_comments comments loop as last_5 %}
+
+<!-- buttons to show and hide all comments (besides 5) -->
+{% if comments|length > 5 %}
+    <button class="btn-info more-comments comment-button-margin" style="margin-bottom: 20px;">Show Earlier Comments</button>
+    <button class="btn-success less-comments comment-button-margin" style="display: none;">Hide Earlier Comments</button>
+    {% with comments|first as first_comment %}
+        <input type="hidden" class="comments" value="{{ first_comment.comment.pk }}">
+    {% endwith %}
+{% endif %}
+
+{% for comment in comments %}
+    <!-- comment -->
+    <div class="iii comment-of-{{ comment.comment.pk }} {% if comment in last_5 %}last-5{% endif %}" id="iii-{{ comment.pk }}" {% if comment not in last_5 %}style="display: none;"{% endif %}>
+        <input type="hidden" class="iii-pk" value="{{ comment.pk }}">
+    <div class="post">
+
+        <p>
+            <img src="{{ comment.user.picture.url }}" class="profile_pic"/>
+            <a href="" class="name">{{ comment.user }}</a> {% if comment.text|wordcount < 25%}{{ comment.text }}
+                {% elif not comment.image %}<p>{{ comment.text|linebreaks }}</p>{% endif %}
+            {% if not comment.image %}
+                <button class="reply">Reply</button>
+
+            {% endif %}
+        </p>
+        {% if comment.image %}
+            <br>
+            <img src="{{ comment.image.url }}" class="img-responsive comment-image" />
+            <br>
+            {% if comment.text|wordcount >= 25 %}
+                <p>{{ comment.text|linebreaks }}</p>
+            {% endif %}
+            <p>
+                <button class="reply">Reply</button>
+            </p>
+        {% endif %}
+
+        <!-- Not used anymore delete -->
+        <p class="likes" style="display: none">{{ comment.amount_likes }} likes </p>
+
+        <!-- like button not operation anymore -->
+        {% if request.user == False %}
+            {% like_list comment.likes as liked_list %}
+        <form method="post" class="like-unlike-form comment-button-margin" id="like-form-{{ comment.pk }}"
+              action="{% url 'chat:like/unlike' %}">
+            {% csrf_token %}
+            <input type="hidden" name="pk" class="pk" value="{{ comment.pk }}">
+            <input type="hidden" name="like-amount" class="like-amount" value="{{ comment.amount_likes}}">
+            <button type="submit" class="like" value="Like/unlike">
+                <i class="fa {% if user.pk in liked_list %}fa-thumbs-up{% else %}fa-thumbs-o-up{% endif %} like-button-icon" aria-hidden="true"></i>
+            </button>
+            <p class="like-text">{% if user.pk in liked_list %}Unlike{% else %}Like{% endif %}</p>
+        </form>
+        {% endif %}
+
+        <!-- comment form -->
+        <form class="form-inline comment-form reply-form" id="comment-form-{{ comment.pk }}" method="POST"
+              action="{% url 'chat:post_comment' %}"
+              enctype="multipart/form-data" style="display: none;">
+            {% csrf_token %}
+            <textarea name="text" class="reply-text-form" id="text" placeholder="text"></textarea>
+            <div class="image-field">
+                {# // image input goes here added in jquery when press the camera button #}
+            </div>
+            <button class="btn-danger hidden-items image-link">X</button>
+            <button class="btn-info image-link" id="image-button">
+                <i class="fa fa-camera-retro fa-1.5x camera-icon" aria-hidden="true"></i>
+            </button>
+            <input type="hidden" name="pk" id="pk" value="{{ comment.pk }}">
+            <input type="hidden" class="type" name="type" value="public">
+            <input type="submit" class="btn btn-primary submit-comment comment-button-margin" value="Reply"/>
+        </form>
+
+        <!-- show no comment -->
+        <div class="iii new-post" id="new-post-{{ post.pk }}"></div>
+    </div>
+
+        <!-- returns comments from this post -->
+        {% new_distance comment.distance_from_sourse as distance %}
+        {% has_comments comment distance as comments %}
+        {% if comments %}
+
+            <!-- button to show reples on the comment -->
+            <button class="btn-info show_replies comment-button-margin">Show replies</button>
+
+            <!-- button to hide replies on the comment -->
+            <div class="hidden-items">
+                <button class="btn-success hide-replies comment-button-margin">Hide replies</button>
+                {% comments_list comments %}
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}

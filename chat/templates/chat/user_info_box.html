@@ -1,0 +1,30 @@
+{% load template_func %}
+
+<!-- From user_info.html and find_friends.html when user searches himself. User Info Box-->
+
+<div class="thumbnail col-sm-10 col-sm-offset-1">
+            <div class="caption">
+                {% friendly_phone_format user.phone as phone_number %}
+                <img src="{{ user.picture.url }}" alt="No Picture" class="img-responsive" />
+                <h1 class="blue-link-color">{{ user }}</h1>
+                <p>Phone number: <strong>{{ phone_number }}</strong></p>
+                <p>Email: <strong>{{ user.email }}</strong></p>
+                <p>Gender: <strong>{{ user.gender }}</strong></p>
+                {% if "years," in  user.birthday|timesince or "year" in user.birthday|timesince %}
+                    <p>Age: <strong>{{ user.birthday|timesince|truncatewords:1 }}</strong></p>
+                {% else %}
+                    <p>Age: <strong>{{ user.birthday|timesince|truncatewords:2 }}</strong></p>
+                {% endif %}
+                <p>Birthday: <strong>{{ user.birthday|date }}</strong></p>
+                {% if users_friends > 0 %}
+                <p>Amount of Friends: <strong>{{ users_friends }}</strong></p>
+                {% endif %}
+                {% if user.description and user.description != "None" and user.description != ""%}
+                    <h3 style="color: gold">Description:  </h3>
+                    <p>{{ user.description|linebreaks }}</p>
+                    <br>
+                {% endif %}
+                <!-- linek to profile_form.html to update info -->
+                <a href="{% url 'update_info' %}" class="btn btn-primary">Update</a>
+            </div>
+</div>

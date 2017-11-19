@@ -1,0 +1,233 @@
+.dropbtnx:hover, .dropbtnx:focus {
+    background-color: #3e8e41;
+}
+
+.blue-link-color {
+    color: #337ab7;
+}
+
+body {
+    background-color: #fcf8e3;
+}
+
+.btn-big {
+    font-size:20px;
+}
+
+.caption {
+    background-color: #f3fbff;
+}
+
+.chatbox-brand {
+    text-decoration: none;
+    color: firebrick";
+}
+
+.chocolate {
+    background: chocolate;
+}
+
+.comment-button-margin {
+    margin-bottom: 10px;
+}
+
+.comment-text-form {
+    width: 70%;
+    height: 60px;
+}
+
+.comment-image {
+    height: 350px;
+}
+
+.comment-form {
+    display: inline;
+}
+
+div.fakefile {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+}
+
+div.fileinputs {
+	position: relative;
+}
+
+.five-top {
+    margin-top: 5px;
+}
+
+.fifteen-bottom {
+    margin-bottom: 15px;"
+}
+
+.friends-header {
+    display: block;
+    margin-top: 40px;
+    margin-bottom: 25px;
+}
+
+.friends-no {
+    background-color: #f9faae;
+}
+
+.hidden-items {
+    display: none;
+}
+
+.image-field {
+    margin-bottom: 5px;
+}
+
+input.file {
+	position: relative;
+	text-align: right;
+	-moz-opacity:0 ;
+	filter:alpha(opacity: 0);
+	opacity: 0;
+	z-index: 2;
+}
+
+.like-text {
+    padding-left: 5px;
+}
+
+.login-margin {
+    margin-bottom: 5px;
+}
+
+.login-p {
+    margin-bottom: 30px;
+    font-size: 15px;
+}
+
+.login-p strong {
+    font-size: 18px;
+}
+
+.logo {
+    margin-left: 25px;
+}
+
+.mb25 {
+    margin-bottom: 25px;
+}
+
+.message-link-seperator {
+    border-bottom: 20px;
+}
+
+.name {
+    font-weight: bold;
+}
+
+
+.new-post {
+    padding-left: 10% ;
+}
+
+.no-margin {
+    margin-top: 0;
+}
+
+.post-text {
+    position: fixed;
+    left: 50%;
+}
+
+.post-margin {
+    margin: 0 15px 0 15px;
+}
+
+.profile_pic {
+    width: 50px;
+    height:50px;
+    border: 1px;
+    background-color: darkred;
+    border-radius: 10%;
+}
+
+.replies {
+    margin-top: 10px;
+}
+
+.reply-form {
+    display: none;
+}
+
+.reply-text-form {
+    width: 70%;
+}
+
+.share-form {
+    display: inline;
+    margin-left: 50px;"
+}
+
+.thirty-space {
+    margin-bottom: 30px;
+}
+
+.top-page-margin {
+    margin-top: 90px;
+}
+
+.twenty-space {
+    margin-bottom: 20px;
+}
+
+.user-message {
+    max-width: 70%;
+    min-width:70%;
+    display: inline-block;
+}
+
+
+#title #id_title {
+    min-width: 70%;
+    max-width: 100%;
+}
+
+#text #id_text {
+    border-radius: 2%;
+    min-width: 70%;
+    max-width: 100%;
+}
+
+h4 #id_title {
+    margin-top: 20px;
+    margin-bottom: 5px;
+    width: 80%;
+}
+
+p #id_title {
+    margin-top: 20px;
+    margin-bottom: 5px;
+    width: 80%;
+}
+
+#id_message {
+    border-radius: 2%;
+    max-width: 100%;
+    min-width: 80%;
+}
+
+
+/*media comments*/
+@media screen and (max-width: 650px) {
+    .comment-image {
+        height: 200px;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    #id_message {
+        min-width: 456px;
+    }
+
+    h4 #id_title {
+        width: 456px;
+    }
+}

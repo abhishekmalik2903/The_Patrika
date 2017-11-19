@@ -1,0 +1,85 @@
+{% load staticfiles %}
+
+
+<div class="thumbnail col-sm-10 col-sm-offset-1 thirty-space" id="message-box-{{ message.pk }}">
+            <div class="caption ">
+                <!-- message for friend request, friend accepted and general-->
+                {% if message.title == "Friend Request" %}
+                    <h3>Friend Request from {{ message.from_user }}</h3>
+                    <p>{{ message.from_user }} requested that you should be his friend. By accepting You will see all his chats and he will yours</p>
+
+                    {% elif message.title == "Friend Accepted" %}
+                            <h3>Friend Request accepted from {{ message.from_user }}</h3>
+                            <p>{{ message.from_user }} accepted your friend requested. Now you will see all his chats and he will see yours.</p>
+                        {% else %}
+                            <h3>{% if message.title %}{{ message.title}}{% endif %}</h3>
+                            {% if message.message %}
+                                <p>{{ message.message }}</p>
+                            {% endif %}
+                            <p>from <strong><a href="#">{{ message.from_user }}</a></strong></p>
+                    {% endif %}
+
+                <!-- Button to delete post -->
+                <form id="message_{{ message.pk }}" method="get" action="{% url 'chat:message_seen'%}">
+                    <input type="hidden" class="message_pk" value="{{ message.pk }}" name="message_pk">
+                    {% if message.title == 'Friend Request' %}
+                        <input type="submit" style="float: right;" class="btn btn-danger message_seen" role="button" value="Delete Request">
+                    {% else %}
+                        <input type="submit" style="float:right;  " class="btn btn-danger message_seen btn-big" role="button" value="X">
+                    {% endif %}
+                </form>
+
+                <!-- Button to accept friend  -->
+                {% if message.title == "Friend Request" %}
+                    <form id="friend_request_{{ message.pk }}" method="get" action="{% url 'chat:confirm_friend'%}">
+                        <input type="hidden" class="message_pk" value="{{ message.pk }}" name="message_pk">
+                        <input type="submit" class="btn btn-primary confirm_friend" role="button" value="Accept Friend Reqeust!">
+                    </form>
+
+                <!-- Form to send first Message to your new friend or start conversation -->
+                {% elif message.title == "Friend Accepted" %}
+                    <form class="" style="" method="POST" action="{% url 'chat:post_comment' %}"
+                                                enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <textarea name="text" class="comment-text-form" id="text" placeholder="text"></textarea>
+                        <div class="image-field">
+                        {# // where image input will be placed in jquery code#}
+                        </div>
+                        <button class="btn-danger hidden-items image-link">X</button>
+                        <button class="btn-info image-link" id="image-button"><i
+                                class="fa fa-camera-retro fa-1.5x camera-icon" aria-hidden="true"></i>
+                        </button>
+                        <input type="hidden" name="username" value="{{ message.from_user }}">
+                        <input type="hidden" class="type" name="type" value="private">
+                        <input type="submit" class="btn btn-primary" value="Start Chat with {{ message.from_user }}"/>
+                    </form>
+
+                    <!-- Respond form  -->
+                {% else %}
+                    {% if message.from_user != "No One" %}
+                    <button class="btn btn-primary respond">Respond</button>
+                        {% else %}
+                        <br>
+                    {% endif %}
+                    <br>
+                    {% if request.user.is_staff %}
+                    <form method="POST" class="respond-form" action="{% url 'chat:admin_respond' %}" style="display: none" enctype="multipart/form-data">
+                        <br>
+                        <input type="hidden" name="username" value="{{ message.from_user }}">
+                        <label for="id_message">Message:</label>
+                        <p><textarea cols="40" id="id_message" name="message" rows="10"></textarea></p>
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-primary" value="Send Message">
+                    </form>
+                    {% else %}
+                    <form method="POST" class="respond-form" action="{% url 'chat:messages' %}" style="display: none" enctype="multipart/form-data">
+                        <h4>{{ form.title }}</h4>
+                        <label for="id_message">Message:</label>
+                        <p>{{ form.message }}</p>
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-primary" value="Send Message">
+                    </form>
+                    {% endif %}
+                {% endif %}
+            </div>
+            </div>

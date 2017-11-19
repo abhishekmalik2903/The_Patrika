@@ -1,0 +1,219 @@
+{% load staticfiles %}
+
+<!-- all the ajax requests. Its in HTML page so it could use Django templatetags -->
+
+<script>
+
+    $(document).ready(function() {
+
+     // chatbox.html
+
+        // this ajax submits the comment form
+    $(".submit-comment").click(function (event) {
+        event.preventDefault();
+        var formData = $(this).parent(".comment-form").serialize();
+        var $form = $(this).parent(".comment-form");
+        var image = $(this).siblings('.image-field').children("#image").val();
+        var text = $(this).siblings("#text").val();
+        var type = $(this).siblings(".type").val();
+        console.log(formData);
+        if (image) {
+            alert("Need to reload to be able to save image");
+            $(this).parent(".comment-form").submit();
+
+        } else if (text === "") {
+            alert("Post not posted. Add a picture or a post");
+        } else {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'chat:post_comment' %}",
+                data: formData,
+                success: function (data) {
+                    if (type === "private") {
+                        newPost = '<div class="thumbnail user-message" style="float: right;">';
+                        newPost += '<div class="caption"><h3>';
+                        newPost += '<img src="{{ user.picture.url }}" class="profile_pic"/>';
+                        newPost += ' Post <small> from <a href="" class="name">{{ user }}</a>';
+                        newPost += '</small></h3>';
+                        newPost += '<p>' + data.comment + '</p>';
+                        newPost += '<p></p>';
+                    } else {
+                        $form.css("display", "none");
+                        var newPost = '<p><img src="{{ user.picture.url }}" class="profile_pic"/> ';
+                        newPost += '<a href="" class="name">{{ user }}</a>';
+                        newPost += ' ' + data.comment + '</p>';
+                    }
+                    $form.siblings(".new-post").prepend(newPost);
+                    $form.siblings("p").children(".reply").css("display", "inline");
+
+                },
+                error: function (error) {
+                    alert("Didn't work");
+                    $(this).parent(".comment-form").submit();
+                }
+            });
+        }
+    });
+
+
+    // comment_loop.html
+
+    // Like button
+    $(".like-unlike-form").submit(function (event) {
+        // likes and likes posts
+        event.preventDefault();
+        var data = $(this).serialize();
+        $.ajax({
+            type: "POST",
+            data: data,
+            url: "{% url 'chat:like/unlike' %}",
+            success: function (data) {
+                $("#like-button-"+data.post_pk).children(".like-button-icon").remove();
+
+                if (data.flash_message == "liked!") {
+                    $("#like-form-"+data.post_pk).children(".like-text").text("Unlike");
+                    $("#like-button-"+data.post_pk).html("<i class='fa fa-thumbs-up like-button-icon' aria-hidden='true'></i>");
+                } else {
+                    $("#like-form-"+data.post_pk).children(".like-text").text("Like");
+                    $("#like-button-"+data.post_pk).html('<i class="fa fa-thumbs-o-up like-button-icon" aria-hidden="true"></i>');
+                }
+                if (data.likes > 0) {
+                    $("#like-form-"+data.post_pk).siblings(".likes").css("display", "inline").text(data.likes + " likes");
+                } else {
+                    $("#like-form-"+data.post_pk).siblings(".likes").text("");
+                }
+            },
+            error: function (error) {
+                alert("didn't work");
+                console.log(error.status + ": " + error.statusText);
+            }
+        })
+    });
+
+    // share button. shares the post
+    $('.share-form').submit(function (event) {
+        // s ahres the post
+        event.preventDefault();
+        var data = $(this).serialize();
+        $.ajax({
+            type: "POST",
+            data: data,
+            url: "{% url 'chat:share' %}",
+            success: function (data) {
+                $("#share-form-" + data.post_pk).css("display", "none");
+                var newText = "<h5>";
+                newText += '<img src="{{ user.picture.url }}" class="profile_pic"/>';
+                newText += '<a href="" class="name">{{ user }}</a> shared <strong>' + data.post_title + '</strong>';
+                newText += "</h5>";
+                $("#new-ajax-sharer-" + data.post_pk).html(newText);
+            },
+            error: function (error) {
+                alert(error.status + ": " + error.statusText);
+                // $(".share-form").submit();
+            }
+        });
+    });
+
+
+        // friends.html - find_friends.html
+
+        // Asks for friend request
+        $(".friend_request").click(function(event) {
+            event.preventDefault();
+            var pk = $(this).siblings(".pk").val();
+            var data = {
+                friend: pk
+            };
+            $.ajax({
+                type: "GET",
+                url: "{% url 'chat:friend_request' %}",
+                data: data,
+                success: function (data) {
+                    $("#friend_" + pk + " .friend_request").fadeOut();
+                    message = "Friend Request sent!";
+                    $("#friend-request-" + pk).html(message);
+                },
+                error: function (responce, error) {
+                    alert("Didn't Go");
+                    $("#friend_" + pk).submit();
+                }
+            })
+        });
+
+
+        // messages.html
+
+        // deletes message
+        $(".message_seen").click(function(event) {
+            event.preventDefault();
+            var pk = parseInt($(this).prevAll(".message_pk").val());
+            var data = {
+                message_pk: pk,
+            };
+            $.ajax({
+                type: "GET",
+                url: "{% url 'chat:message_seen' %}",
+                data: data,
+                success: function (data) {
+                    $("#message_" + pk).parents(".message_box").fadeOut();
+                    $("#message-box-" + pk).fadeOut();
+                },
+                error: function (responce, error) {
+                    alert("Didn' t Go");
+                    $("#message_" + pk).submit();
+                }
+            })
+        });
+
+        // respond to message
+        $(".respond-form").submit(function (event) {
+            event.preventDefault();
+            data = $(this).serialize();
+            var message = $(this).children("#id_message").val();
+            if (message === "") {
+                alert("Message not sent you need add a message");
+            } else {
+            $.ajax({
+                type: "POST",
+                {% if request.user.is_staff %}
+                    url: "{% url 'chat:messages' %}",
+                {% else %}
+                    url: "{% url 'chat:admin_respond' %}",
+                {% endif %}
+                data: data,
+                success: function(data) {
+
+                    alert("Message sent");
+                },
+                error: function(error) {
+                    $(".respond-form").submit();
+                    alert("Couldn't be sent");
+                }
+            })
+            }
+        });
+
+        // Confirms friend
+        $(".confirm_friend").click(function(event) {
+            event.preventDefault();
+            var numbbb = parseInt($(this).prevAll("input[type='hidden']").val());
+            var data = {
+                message_pk: numbbb,
+            };
+            $.ajax({
+                type: "GET",
+                url: "{% url 'chat:confirm_friend' %}",
+                data: data,
+                success: function (data) {
+                    $("#friend_request_" + numbbb).fadeOut();
+                    $("#message-box-" + numbbb).fadeOut();
+                },
+                error: function (responce, error) {
+                    $("#friend_request_" + numbbb).submit();
+                }
+
+            })
+
+        });
+    });
+</script>

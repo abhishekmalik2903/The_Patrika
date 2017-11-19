@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+<!-- Page to log in acts to /login/ or account/login/ -->
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <div class="col-sm-8 col-sm-offset-2">
+        <h1 class="no-margin login-margin">Welcome to The Patrika!</h1>
+        <p class="login-p">You are not logged in. Login or you could <a href="{% url 'sign_up' %}"><strong>Sign up</strong></a></p>
+        <form action="" method="POST">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <input type="submit" class="btn btn-default" value="Login">
+        </form>
+    </div>
+{% endblock %}
+
+208

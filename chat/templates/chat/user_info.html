@@ -1,0 +1,27 @@
+{% extends 'chat/friends.html' %}
+
+<!-- Page for Personal Info of person and info of his friends -->
+
+<script>
+    {% block javascript %}
+    {% endblock %}
+</script>
+
+{% block title %}{{ user.users }}'s Info{% endblock %}
+
+{% block user_info %}
+    <h2 class="col col-sm-10 col-sm-offset-1 no-margin mb25">Here is your info</h2>
+    <!-- Page with User info box -->
+    {% include 'chat/user_info_box.html' %}
+
+    <!-- Friend Header -->
+    {% if friends == "None" or friends|length < 1 %}
+        <div class="col-sm-10 col-sm-offset-1">
+            <h2 style="display: block; margin-top: 20px;">You have no friends yet:
+            <a href="{% url 'chat:find_friends' %}">Find friends</a>
+            </h2>
+        </div>
+    {% else %}
+        <h3 class="col-sm-10 col-sm-offset-1 friends-header">Here are your Friends:</h3>
+    {% endif %}
+{% endblock %}

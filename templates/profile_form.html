@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+<!-- Sign up form and form to update info -->
+
+{% block title %}{{ title }}!{% endblock %}
+
+{% block content %}
+    <div class="col-sm-8 col-sm-offset-1">
+    <h1 class="no-margin twenty-space">{{ title }}!</h1>
+    <form method="POST" action="" enctype="multipart/form-data">
+        {% if message_type == "response" %}
+            <p>{{ form.message }}</p>
+        {% else %}
+            {{  form.as_p }}
+            {% if title == "Update Info" %}
+                <label>Description:</label>
+                <textarea class="form-control" style="" rows="4" placeholder="describe yourself" name="description" >{{ user.description }}</textarea>
+
+                <h2 class="twenty-space">Edit Password</h2>
+                {{ password_form.as_p }}
+            {% endif %}
+        {% endif %}
+        {% csrf_token %}
+        <input type="submit" class="btn btn-info twenty-space five-top" value="{{ title }}">
+    </form>
+    </div>
+{% endblock %}

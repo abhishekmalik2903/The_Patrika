@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+<!-- Form to contact the The Patrika staff -->
+
+{% block title %}contact us{% endblock %}
+
+{% block content %}
+    <div class="col-sm-10 col-sm-offset-1">
+        <h1 class="no-margin">{% if message_type == "contact_us" %}Send a message to The Patrika team{% else %}
+            Respond{% endif %}
+        </h1>
+        <form method="POST" action="" enctype="multipart/form-data">
+            <h4>{{ form.title }}</h4>
+            <label for="id_message">Message: </label>
+            <p>{{ form.message }}</p>
+            {% csrf_token %}
+            <input type="submit" class="btn btn-primary" value="Send Message">
+        </form>
+    </div>
+{% endblock %}

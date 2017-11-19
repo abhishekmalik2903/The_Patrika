@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}Post to ChatBox!{% endblock %}
+
+{% block content %}
+    <div class="col-sm-6 col-sm-offset-3">
+    <h1>Post a message or image to ChatBox!</h1>
+    <form method="POST" action="" enctype="multipart/form-data">
+        <p id="title">{{ form.title }}</p>
+        <p id="image">{{ form.image }}</p>
+        <p id="text">{{ form.text }}</p>
+        <p id="share"><select id="id_share" name="share" required>
+            <option value="" selected="selected">-----------</option>
+            <option value="Public">Public</option>
+            {% if num_friends > 0 %}
+                <option value="Friends">Friends</option>
+            {% endif %}
+            <option value="Only Me">Only Me</option>
+            <option value="Private Message">Private Message</option>
+        </select></p>
+        <input id="only-me" type="text" placeholder="share with" name="share_with"style="display: none">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-primary" value="Post">
+    </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+{% load static from staticfiles %}
+<html class="no-js" lang="en">
+<head>
+    <meta charset="UTF-8">
+{#    <meta http-equiv="X-UA-Compatible" content="IE=edge">#}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"  content="The Patrika site">
+    <meta name="content"  content="News Site, The Patrika, Bml Munjal ">
+    <meta name="author" content="Python Project">
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="{% static 'css/costom_styles.css' %}">
+    {% block css %}{% endblock %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery.min.js" type="text/javascript"></script>
+
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://malsup.github.com/jquery.form.js"></script>
+    <meta class="foundation-mq">
+</head>
+
+<body>
+<!-- nav bar on top of page. it will aleays be on top -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+        <h4 class="navbar-brand chatbox-brand"><a href="{% url 'chat:chat' %}" >The Patrika!</a></h4>
+    </div>
+
+    <div class="collapse navbar-collapse collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+            {% block submenu %}{% endblock %}
+            {% if request.user.is_authenticated %}
+                <!-- dropbox to search posts or people -->
+                <li class="dropdown">
+                    <a href="#" data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" class="dropdown-toggle message-dropdown" aria-expanded="false">Search (Post/People) <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><form class="navbar-form navbar-left" method="get" name="tabForm" autocomplete="">
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="q" placeholder="Search" value="{{ request.GET.q }}"/>
+                            </div>
+                            <input type="button" class="search-button btn btn-primary" value="Search Posts" onclick="searchButton();"/>
+                            <input type="button" style="" id="submit-find-friends" class="btn btn-info" value="Find Friends" onclick="findFriends();"/>
+                        </form>
+                        </li>
+                    </ul>
+                </li>
+
+                {% if request.user.is_staff %}
+                    <li class=""><a href="{% url 'chat:messages' %}">Messages</a></li>
+                {% else %}
+                    <li class=""><a href="{% url 'chat:messages' %}">Messages/Notifications</a></li>
+                    <li class=""><a href="{% url 'chat:friends' %}">Personal Info</a></li>
+                    <li class=""><a href="{% url 'contact-us' %}">Contact Us</a></li>
+                {% endif %}
+                <li class=""><a href="{% url 'logout' %}">Logout</a></li>
+                <!-- If user is not logged in -->
+            {% else %}
+                <li class=""><a href="{% url 'sign_up' %}">Sign up</a></li>
+                <li class=""><a href="{% url 'login' %}">Login</a></li>
+                <li class=""><a href="{% url 'contact-us' %}">Contact Us</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    </div>
+</nav>
+
+
+
+<div class="container top-page-margin">
+    <!-- Messages are send here -->
+    {% if messages %}
+        <div class="container" style="margin-bottom: 50px;">
+            {% for flash_message in messages %}
+                <div class="alert alert-{% if flash_message.tags == "error" %}danger{% else %}{{ flash_message.tags }}{% endif %} text-center">
+                <p>{{ flash_message.tags }}</p>
+                <p>{{ flash_message }}</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+<!-- tell admin he is logged in as admin ontop of page -->
+{% if user.is_superuser %}
+    <h1>Admin</h1>
+{% endif %}
+
+    <!-- all the content of each page -->
+    {% block content %}{% endblock %}
+</div>
+
+<footer class="row columns">
+    <hr/>
+    <div class="small-6 columns">
+        <p class="logo" style="">&copy; The Patrika</p>
+    </div>
+</footer>
+
+<!-- some function -->
+<script>
+
+    function searchButton() {
+        document.tabForm.action = "{% url 'chat:chat' %}";
+        // document.tabForm.target = "_blank";
+        document.tabForm.submit();
+    }
+
+    function findFriends() {
+        document.tabForm.action = "{% url 'chat:find_friends' %}";
+        // document.tabForm.target = "_blank";
+        document.tabForm.submit();
+    }
+    $(document).ready(function () {
+        {%  block javascript %}{%  endblock %}
+    });
+</script>
+<script src="{% static 'js/jquery.js' %}"></script>
+</body>
+</html>

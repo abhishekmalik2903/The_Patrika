@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+<!--Not Used -->
+
+{% block title %}{{ profile }}{% endblock %}
+
+{% block content %}
+    <div class="'col-sm-6 col-sm-offset-3">
+        <img src="{{ profile.picture.url }}" class="img-responsive" />
+        <h1>{{ profile }}</h1>
+        <p>Phone number: {{ profile.phone }}</p>
+        <p>Email: {{ profile.email }}</p>
+        <p>Gender: {{ profile.gender }}</p>
+        <p>Birthday: {{ prifile.birthday }}</p>
+        <p><a href="{% url 'chat:friend_request' pk=profile.pk %}" class="btn btn-primary" role="button">Make Friend Request!</a></p>
+    </div>
+{% endblock %}

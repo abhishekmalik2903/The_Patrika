@@ -1,0 +1,56 @@
+div.content {
+    display: table;
+    width: 100%;
+    border: 1px solid black;
+}
+
+div.content header, div.content main section {
+    display: table-row;
+    border: 1px solid black;
+    min-width: 100%;
+}
+
+span.avail,span.list {
+    padding: 5px;
+    display: table-cell;
+    width: 10%;
+    border: 1px solid black;
+}
+
+section {
+    min-width: 100%;
+    max-width: 100%;
+}
+
+.odd {
+    background-color: #d2dbff;
+}
+
+span.title {
+    display: table-cell;
+    padding: 5px;
+    width: 10%;
+    border: 1px solid black;
+    background-color: #fad9dc;
+}
+
+body {
+    background-color: #e9ffe8;
+}
+
+.table-one {
+    background-color: white;
+    float: left;
+    max-width: 40%;
+    display: flex;
+    margin: 5%;
+
+}
+
+.table-two {
+    background-color: white;
+    float: right;
+    max-width: 40%;
+    display: flex;
+    margin: 5%;
+}

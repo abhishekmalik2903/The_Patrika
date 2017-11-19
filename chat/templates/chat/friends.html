@@ -1,0 +1,78 @@
+{% extends 'layout.html' %}
+
+{% load template_func %}
+
+<!-- the template for Personal Info and find_friends.html -->
+
+{% block content %}
+    <div class="row">
+    <!--Uses on find_friends.html. For Admin and to send message if we couldn't find anything occorinding to the post -->
+    {% block search_results %}{% endblock %}
+
+    <!-- Used by Personal Info to show box of users info -->
+    {% block user_info %}{% endblock %}
+
+    <!-- loops through friends of user or of people in general -->
+    {% for friend in friends %}
+        {% if friend.username != "ChatBox staff" and friend.username != "No One"%}
+            {%  if friend == user %}
+                <!-- returns box for users info with a button to update info -->
+                {% block find_friends_user %}{% endblock %}
+            {% else%}
+                {% friendly_phone_format friend.phone as phone_number %}
+            <div class="thumbnail col-sm-10 col-sm-offset-1">
+                <div class="caption">
+                    <img src="{{ friend.picture.url }}" alt="No Picture" class="img-responsive" />
+                    <h1 class="blue-link-color">{{ friend }}</h1>
+                    <p>Phone number: <strong>{{ phone_number }}</strong></p>
+                    <p>Email: <strong>{{ friend.email }}</strong></p>
+                    <p>Gender: <strong>{{ friend.gender }}</strong></p>
+                    {% if "years," in  friend.birthday|timesince or "year" in friend.birthday|timesince %}
+                    <p>Age: <strong>{{ friend.birthday|timesince|truncatewords:1 }}</strong></p>
+                        {% else %}
+                    <p>Age: <strong>{{ friend.birthday|timesince|truncatewords:2 }}</strong></p>
+                        {% endif %}
+                    <p>Birthday: <strong>{{ friend.birthday|date }}</strong></p>
+                    {% if friend.description and friend.description != "None" and friend.description != "" %}
+                        <h3 style="color: gold">Description:  </h3>
+                        <p>{{ friend.description|linebreaksbr }}</p>
+                    {% endif %}
+
+                    <!-- button thats a link to the chat between user and his friend -->
+                    <form method="get" action="{% url 'chat:messages_by_user' %}" style="display: inline;">
+                        <input type="hidden" name="username" value="{{ friend.username }}">
+                        <h3><input class="btn-default" type="submit" value="See conversation"></h3>
+                    </form>
+                    <br>
+
+
+                    <!-- Form to send a message and/or picture to that person as a Private Message -->
+                    <form class="" style="display: inline;" method="POST" action="{% url 'chat:post_comment' %}"
+                          enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <textarea name="text"  id="text" style="width: 90%" placeholder="text"></textarea>
+                        <div class="image-field">
+                        {# // where image input will be placed in jquery code#}
+                        </div>
+                        <button class="btn-danger hidden-items image-link">X</button>
+                        <button class="btn-info image-link" id="image-button"><i
+                                class="fa fa-camera-retro fa-1.5x picture-icon" aria-hidden="true"></i>
+                        </button>
+                        <input type="hidden" name="username" value="{{ friend.username }}">
+                        <input type="hidden" class="type" name="type" value="private">
+                        <input type="submit" class="btn btn-primary" value="Send message"/>
+                    </form>
+
+                <!-- a button to make friend request if user is not a friend its at: chat/find_friend.html-->
+                {% block friend_request %}{% endblock %}
+
+
+
+                </div>
+            </div>
+        {% endif %}
+        {% endif %}
+    {% endfor %}
+    </div>
+    {% include "chat/ajax.html" %}
+{% endblock %}

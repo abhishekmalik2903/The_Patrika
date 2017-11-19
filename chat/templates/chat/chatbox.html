@@ -1,0 +1,163 @@
+{% extends "layout.html" %}
+
+{% load template_func %}
+
+<!-- main page -->
+
+{% block title %}ChatBox{% endblock %}
+
+<script>
+{% block javascript %}
+{% endblock %}
+</script>
+
+{% block content %}
+
+    <div class="col-sm-10 col-sm-offset-1">
+
+        <!-- form to post new post -->
+        <h3 class="no-margin">Make a new Post</h3>
+        <form id="post-form" method="POST" action="" enctype="multipart/form-data">
+            <p id="title">{{ form.title }} </p>
+            <p id="image">{{ form.image }}</p>
+            <p id="text">{{ form.text }}</p>
+            <p id="share"><select id="id_share" name="share" required>
+                <option value="" selected="selected">-----------</option>
+                <option value="Public">Public</option>
+                {% if num_friends > 0 %}
+                    <option value="Friends">Friends</option>
+                {% endif %}
+                <option value="Only Me">Only Me</option>
+                <option value="Private Message">Private Message</option>
+            </select></p>
+
+            <input id="only-me" type="text" placeholder="share with" name="share_with" style="display: none">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-primary" id="submit-post" value="Post">
+        </form>
+        <br/><br/>
+
+
+        <div class="row">
+            <h3 id="new-post"></h3>
+            {% for post in posts %}
+                {% post_filter post user friends as post_good %}
+                {% if post_good %}
+                    <!-- beginning of post -->
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="thumbnail">
+                                <div class="caption">
+
+                                    <h3>
+                                        <img src="{{ post.user.picture.url }}" class="profile_pic"/>
+                                        {{ post.title }}
+                                        <small> from <a href="" class="name">{{ post.user }}</a>
+                                            {{ post.time_posted|timesince }} ago
+                                        </small>
+                                    </h3>
+                                    {% if post.image %}
+                                        <img src="{{ post.image.url }}" class="img-responsive"/>
+                                        <br>
+                                    {% endif %}
+                                    <p class="post-text">{{ post.text|linebreaks }}</p>
+                                    <p>
+                                        <small>{{ post.share }}{% if post.share == "Private Message" %} to: <strong>{{ post.private_message }}</strong>{% endif %}</small>
+                                    </p>
+                                    <p class="likes" {% if post.amount_likes < 1 %}style="display: none"{% endif %}>
+                                        {{ post.amount_likes }} like{% if post.amount_likes > 1 %}s{% endif %}
+                                    </p>
+
+                                    <!-- like button -->
+                                    {% if request.user.is_staff == False %}
+                                        {% like_list post.likes as liked_list %}
+                                    <form method="post" style="display: inline-flex" class="like-unlike-form" id="like-form-{{ post.pk }}" action="{% url 'chat:like/unlike' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="pk" value="{{ post.pk }}">
+                                        <button type="submit" id="like-button-{{ post.pk }}" value="Like/unlike"><i class="fa {% if user.pk in liked_list %}fa-thumbs-up{% else %}fa-thumbs-o-up{% endif %} like-button-icon" aria-hidden="true"></i></button>
+                                        <p class="like-text" >{% if user.pk in liked_list %}Unlike{% else %}Like{% endif %}</p>
+                                    </form>
+                                    {% endif %}
+
+
+                                    <!-- share button only shows if post is only for friends -->
+                                    {% share_button_filter post user as shared %}
+                                    {% if shared and request.user.is_staff == False %}
+                                    <form method="post" class="share-form" id="share-form-{{ post.pk }}" action="{% url 'chat:share' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="pk" value="{{ post.pk }}">
+                                        <input type="submit" class="btn btn-primary" value="Share">
+                                    </form>
+
+                                    {% endif %}
+
+                                    <!-- div shows new sharer i.e. user -->
+                                    <div id="new-ajax-sharer-{{ post.pk }}"></div>
+
+                                    <!-- share bar -->
+                                    {% for sharer in post.users.all %}
+                                        {% if sharer.id in friends and sharer != user %}
+                                        <h5>
+                                            <img src="{{ sharer.picture.url }}" class="profile_pic"/>
+                                            <a href="" class="name">{{ sharer }}</a> shared <strong>{{ post.title  }}</strong>
+                                        </h5>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    <div class="" style="margin-bottom: 30px;"></div>
+
+                                    <!-- comment form -->
+                                    <form class="comment-form" id="comment-form-{{ post.pk }}" method="POST" action="{% url 'chat:post_comment' %}"
+                                          enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <textarea name="text" class="comment-text-form" id="text" placeholder="text"></textarea>
+                                        <div class="image-field">
+                                            {# // where image input will be placed in jquery code#}
+                                        </div>
+                                        <button class="btn-danger hidden-items image-link">X</button>
+                                        <button class="btn-info image-link" id="image-button">
+                                            <i class="fa fa-camera-retro fa-1.5x camera-icon" aria-hidden="true"></i>
+                                        </button>
+                                        <input type="hidden" id="pk" name="pk" value="{{ post.pk }}">
+                                        <input type="hidden" class="type" name="type" value="public">
+                                        <input type="submit" class="btn btn-primary submit-comment" value="Comment"/>
+                                    </form>
+
+                                    <!-- ajax spot for new post -->
+                                    <div class="new-post" id="new-post-{{ post.pk }}"></div>
+
+                                    <!-- comment filter comments_list is at chat/comment_loop.html -->
+                                    {% has_comments post 2 as comments %}
+                                    {% if comments %}
+                                        <div class="replies">
+                                        {% comments_list comments %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+        <!-- only allow 40 posts on a page-->
+            <div class="pagination">
+    <span class="step-links">
+        {% if posts.has_previous %}
+            <a href="?page={{ posts.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+        </span>
+
+        {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+            </div>
+        </div>
+    </div>
+
+{% include "chat/ajax.html" %}
+{% endblock %}

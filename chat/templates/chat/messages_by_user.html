@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+
+<!-- page for Private Chat -->
+
+{% block title %}Chat with {{ friend }}{% endblock %}
+
+
+<script>
+{% block javascript %}
+    $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+{% endblock %}
+</script>
+
+{% block content %}
+    {% for message in user_messages %}
+        <!--box of message -->
+        <div class="thumbnail user-message" style="{% if message.user == user %}float: right;{% else %}float: left'{% endif %}">
+        <div class="caption">
+            <h3>
+                <img src="{{ message.user.picture.url }}" class="profile_pic"/>
+                {{ message.title }}
+                <small> from <a href="" class="name">{{ message.user }}</a>
+                    {{ message.time_posted|timesince }} ago
+                </small>
+            </h3>
+            {% if message.image %}
+                <img src="{{ message.image.url }}" class="img-responsive fifteen-bottom"/>
+            {% endif %}
+            <p class="post-text" style="">{{ message.text|linebreaks }}</p>
+
+
+        </div>
+        </div>
+    {% endfor %}
+        <!-- for new ajax posts -->
+        <div class="new-post"></div>
+
+        <!-- comment form -->
+        <form class="comment-form" style="display: inline;" method="POST" action="{% url 'chat:post_comment' %}"
+              enctype="multipart/form-data">
+            {% csrf_token %}
+            <textarea class="user-message" name="text" rows="3" id="text" placeholder="text"></textarea>
+            <div class="image-field">
+                <!-- where image input will be placed in jquery code -->
+            </div>
+            <button class="btn-danger hidden-items image-link">X</button>
+            <button class="btn-info image-link" id="image-button"><i
+                    class="fa fa-camera-retro fa-1.5x camera-icon" aria-hidden="true"></i>
+            </button>
+            <input type="hidden" id="pk" name="pk" value="{{ friend.pk }}">
+            <input type="hidden" class="type" name="type" value="private">
+            <input type="submit" class="btn btn-primary submit-comment" value="Comment"/>
+        </form>
+
+   {% include "chat/ajax.html" %}
+{% endblock %}
+
